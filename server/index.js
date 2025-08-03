@@ -52,16 +52,16 @@ const authLimiter = rateLimit({
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 
-// CORS configuration
+// CORS configuration - Updated for frontend connection
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
-      process.env.FRONTEND_URL || 'http://localhost:5173',
-      'http://localhost:3000',
-      'http://localhost:5174'
+      process.env.FRONTEND_URL || 'http://localhost:3000',
+      'http://localhost:5173', // Vite dev server
+      'http://localhost:3000'  // React dev server
     ];
     
     if (allowedOrigins.indexOf(origin) !== -1) {
@@ -182,9 +182,13 @@ app.use((error, req, res, next) => {
 process.on('unhandledRejection', (err, promise) => {
   logError(err, 'Unhandled Promise Rejection');
   // Close server & exit process
-  server.close(() => {
+  if (server) {
+    server.close(() => {
+      process.exit(1);
+    });
+  } else {
     process.exit(1);
-  });
+  }
 });
 
 // Handle uncaught exceptions
@@ -196,9 +200,11 @@ process.on('uncaughtException', (err) => {
 // Graceful shutdown
 process.on('SIGTERM', () => {
   logInfo('SIGTERM received. Shutting down gracefully...');
-  server.close(() => {
-    logInfo('Process terminated');
-  });
+  if (server) {
+    server.close(() => {
+      logInfo('Process terminated');
+    });
+  }
 });
 
 // Initialize database and start server
@@ -219,6 +225,7 @@ const startServer = async () => {
       logInfo(`📚 Environment: ${process.env.NODE_ENV || 'development'}`);
       logInfo(`🌐 API URL: http://localhost:${PORT}/api`);
       logInfo(`💾 Database: Connected to MySQL`);
+      logInfo(`🔗 Frontend URL: ${process.env.FRONTEND_URL}`);
       
       if (process.env.NODE_ENV === 'development') {
         logInfo(`📖 API Documentation: http://localhost:${PORT}/api`);

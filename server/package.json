@@ -1,8 +1,9 @@
 {
-  "name": "student-skillup-backend",
+  "name": "skillup-server",
   "version": "1.0.0",
   "description": "Backend API for Student Skill Up Pathway",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
@@ -23,7 +24,8 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "mysql2": "^3.6.5"
+    "mysql2": "^3.6.5",
+    "stripe": "^14.9.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
